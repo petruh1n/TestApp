@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Тестовое задание</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h2>Тестовое задание</h2>
+    <form name="dataForm">
+        <input type="hidden" name="id" value="0" />
+        <div class="panel-body">
+            <button type="submit" id="submit" class="btn btn-primary">Отправить</button>
+        </div>
+    </form>
+    <table class="table table-condensed table-striped  col-md-6">
+        <thead><tr><th>Id</th><th>Код</th><th>Значение</th></tr></thead>
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+        // Получение всех данных
+        async function GetDatas() {
+            // отправляет запрос и получаем ответ
+            const response = await fetch("/api/datas", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const datas = await response.json();
+                let rows = document.querySelector("tbody");
+                datas.forEach(data => {
+                    // добавляем полученные элементы в таблицу
+                    rows.append(row(data));
+                });
+            }
+        }
+
+        // Добавление данных
+        async function CreateData() {
+
+            const response = await fetch("api/datas", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify([{ "4": "val1" }, { "1": "val" }, { "2": "val" }])
+            });
+            if (response.ok === true) {
+                // удаляем данные
+                const datas = await response.json();
+                let rows = document.querySelector("tbody");
+                datas.forEach(data => {
+                    // удаляем полученные элементы из таблицы
+                    rows.deleteRow(row(data));
+                });
+                GetDatas();
+            }
+        }
+
+        // Создание строки для таблицы
+        function row(data) {
+
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", data.id);
+
+            const idTd = document.createElement("td");
+            idTd.append(data.id);
+            tr.append(idTd);
+
+            const codeTd = document.createElement("td");
+            codeTd.append(data.code);
+            tr.append(codeTd);
+
+            const valueTd = document.createElement("td");
+            valueTd.append(data.value);
+            tr.append(valueTd);
+
+            return tr;
+        }
+
+        // Отправка формы
+        document.forms["dataForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            CreateData();
+        });
+
+        // Загрузка данных
+        GetDatas();
+
+    </script>
+</body>
+</html>
